@@ -63,48 +63,49 @@ int main() {
         exit(EXIT_FAILURE);
     }
     printf("Listening for connections...\n");
-
-    client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
-    if (client_fd < 0) {
-        perror("accept failed");
-        close(server_fd);
-        exit(EXIT_FAILURE);
-    }
-    printf("Client connected from %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-    //inet_ntoa()将二进制的IP地址转换为点分十进制的字符串，ntohs()将网络字节序的端口号（大端序）转换为主机字节序的端口号（小端序）
-
-    printf("How to disconnect from server: Ctrl+] then type 'quit' and press Enter.\n");
     
-    while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        recv_len = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
-        /*
-        第一个参数指定发送端套接字描述符；
-        第二个参数指明一个存放应用程序要发送数据的缓冲区；
-        第三个参数指明实际要发送的数据的字节数；留1位存'\0'，避免字符串越界
-        第四个参数一般置0
-        */
-        if (recv_len < 0) {
-            perror("recv failed");
-            break;
-        } else if (recv_len == 0){  // 客户端主动断开连接（recv返回0），断开方法：在客户端先按ctrl+]，在输入quit回车
-            printf("Client disconnected.\n");
-            break;
+    while(1){
+        client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
+        if (client_fd < 0) {
+            perror("accept failed");
+            continue;   // 继续循环，等待下一个连接
+            //close(server_fd);
+            //exit(EXIT_FAILURE);
         }
+        printf("Client connected from %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        //inet_ntoa()将二进制的IP地址转换为点分十进制的字符串，ntohs()将网络字节序的端口号（大端序）转换为主机字节序的端口号（小端序）
 
-        send_len = send(client_fd, buffer, recv_len, 0);
-        if (send_len < 0) {
-            perror("send failed");
-            break;
+        printf("How to disconnect from server: Ctrl+] then type 'quit' and press Enter.\n");
+        
+        while (1) {
+            memset(buffer, 0, BUFFER_SIZE);
+            recv_len = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+            /*
+            第一个参数指定发送端套接字描述符；
+            第二个参数指明一个存放应用程序要发送数据的缓冲区；
+            第三个参数指明实际要发送的数据的字节数；留1位存'\0'，避免字符串越界
+            第四个参数一般置0
+            */
+            if (recv_len < 0) {
+                perror("recv failed");
+                break;
+            } else if (recv_len == 0){  // 客户端主动断开连接（recv返回0），断开方法：在客户端先按ctrl+]，在输入quit回车
+                printf("Client disconnected.\n");
+                break;
+            }
+
+            char response[BUFFER_SIZE] = {0};
+            int prefix_len = snprintf(response, BUFFER_SIZE, "Echo from Server: %.*s", (int)recv_len, buffer);//优化客户端返回内容
+
+            send_len = send(client_fd, response, prefix_len, 0);
+            if (send_len < 0) {
+                perror("send failed");
+                break;
+            }
+            printf("Echo to client: %s\n", buffer);
         }
-        printf("Echo to client: %s\n", buffer);
+        close(client_fd);
+        printf("Client connection closed. Ready for next connection...\n");
     }
-
-    close(client_fd);
-    printf("Client connection closed.\n");
-
-    close(server_fd);
-    printf("Server socket closed. Exiting.\n");
-
     return 0;
 }

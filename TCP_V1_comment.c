@@ -34,15 +34,15 @@ int main() {
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
     /*
-    struct sockaddr_in {
+    struct sockaddr_in { 
         sa_family_t    sin_family; / address family: AF_INET 
         in_port_t      sin_port;   / port in network byte order
         struct in_addr sin_addr;   / internet address
-        };
+        };(IPV4的)
 
     struct in_addr {
         uint32_t       s_addr;     / address in network byte order 
-        };
+        };(IPV4的)
     */
     if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) { //绑定 socket 到端口
         // 因为bind /connect/accept 这些系统函数是通用的，所以系统设计了一个通用类型 struct sockaddr，让所有协议都能兼容

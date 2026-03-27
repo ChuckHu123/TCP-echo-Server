@@ -1,3 +1,4 @@
+// Select-based I/O Multiplexing Version 基于 select 的 I/O 多路复用版本
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

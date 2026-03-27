@@ -1,3 +1,4 @@
+//Multithreaded Synchronous Version 多线程同步版本
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

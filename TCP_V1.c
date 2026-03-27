@@ -1,3 +1,4 @@
+// Single Client Synchronous Version单客户端同步版本
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

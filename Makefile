@@ -22,6 +22,10 @@ TCP_V4: TCP_V4.c
 	mkdir -p build
 	gcc -Wall TCP_V4.c -o build/TCP_V4
 
+TCP_Client_V1: TCP_Client_V1.c
+	mkdir -p build
+	gcc -Wall TCP_Client_V1.c -o build/TCP_Client_V1
+
 helloworld:	hello.c
 	mkdir -p build
 	gcc hello.c -o build/hello

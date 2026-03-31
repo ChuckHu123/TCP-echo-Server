@@ -56,13 +56,23 @@ void listener_cb(struct evconnlistener *listener, evutil_socket_t fd, struct soc
     bufferevent_enable(bev, EV_READ | EV_WRITE);
 }
 
+void signal_cb(evutil_socket_t fd, short events, void *ctx){
+    struct event_base *base = (struct event_base *)ctx;
+    printf("Signal event triggered, closing down the event base...\n");
+    event_base_loopexit(base, NULL);
+}
+
 int main() {
     signal(SIGPIPE, SIG_IGN);//忽略管道破裂错误，防止客户端异常断开导致服务器崩溃
+
     struct event_base *base = event_base_new();
     if (!base) {
         fprintf(stderr, "Could not initialize libevent!\n");
         return EXIT_FAILURE;
     }
+
+    struct event *signal_event = evsignal_new(base, SIGINT, signal_cb, (void *)base);
+    evsignal_add(signal_event, NULL);
 
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
